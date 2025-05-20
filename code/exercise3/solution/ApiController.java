@@ -11,9 +11,7 @@ public class ApiController {
         validateUserRequest(request);
 
         if (users.values().stream().anyMatch(u -> u.getEmail().equals(request.getEmail()))) {
-            throw new DuplicateResourceException(
-                "A user with the email address '" + request.getEmail() + "' already exists. Please use a different email address."
-            );
+            throw new DuplicateResourceException("User", request.getEmail());
         }
 
         try {
@@ -25,19 +23,14 @@ public class ApiController {
             users.put(user.getId(), user);
             return user;
         } catch (Exception e) {
-            throw new InternalServerException(
-                "Unable to create user account at this time. Please try again later.",
-                e
-            );
+            throw new InternalServerException("Failed to create user", e);
         }
     }
 
     public User getUser(String id) {
         User user = users.get(id);
         if (user == null) {
-            throw new ResourceNotFoundException(
-                "No user account found with the provided ID. Please verify the ID and try again."
-            );
+            throw new ResourceNotFoundException("User", id);
         }
         return user;
     }
@@ -45,78 +38,56 @@ public class ApiController {
     public void updateUser(String id, UserRequest request) {
         User user = users.get(id);
         if (user == null) {
-            throw new ResourceNotFoundException(
-                "No user account found with the provided ID. Please verify the ID and try again."
-            );
+            throw new ResourceNotFoundException("User", id);
         }
 
         try {
             if (request.getName() != null) {
                 if (request.getName().trim().isEmpty()) {
-                    throw new ValidationException(
-                        "The name field cannot be empty. Please provide a valid name."
-                    );
+                    throw new ValidationException("Name cannot be empty");
                 }
                 user.setName(request.getName());
             }
 
             if (request.getEmail() != null) {
                 if (!EMAIL_PATTERN.matcher(request.getEmail()).matches()) {
-                    throw new ValidationException(
-                        "The email address '" + request.getEmail() + "' is not in a valid format. Please use a valid email address."
-                    );
+                    throw new ValidationException("Invalid email format");
                 }
                 if (users.values().stream()
                         .anyMatch(u -> !u.getId().equals(id) && u.getEmail().equals(request.getEmail()))) {
-                    throw new DuplicateResourceException(
-                        "The email address '" + request.getEmail() + "' is already in use. Please use a different email address."
-                    );
+                    throw new DuplicateResourceException("User", request.getEmail());
                 }
                 user.setEmail(request.getEmail());
             }
         } catch (CustomException e) {
             throw e;
         } catch (Exception e) {
-            throw new InternalServerException(
-                "Unable to update user account at this time. Please try again later.",
-                e
-            );
+            throw new InternalServerException("Failed to update user", e);
         }
     }
 
     public void deleteUser(String id) {
         if (!users.containsKey(id)) {
-            throw new ResourceNotFoundException(
-                "No user account found with the provided ID. Please verify the ID and try again."
-            );
+            throw new ResourceNotFoundException("User", id);
         }
         try {
             users.remove(id);
         } catch (Exception e) {
-            throw new InternalServerException(
-                "Unable to delete user account at this time. Please try again later.",
-                e
-            );
+            throw new InternalServerException("Failed to delete user", e);
         }
     }
 
     private void validateUserRequest(UserRequest request) {
         if (request == null) {
-            throw new ValidationException(
-                "The request cannot be empty. Please provide valid user information."
-            );
+            throw new ValidationException("Request cannot be null");
         }
 
         if (request.getName() == null || request.getName().trim().isEmpty()) {
-            throw new ValidationException(
-                "The name field is required. Please provide a valid name."
-            );
+            throw new ValidationException("Name cannot be empty");
         }
 
         if (request.getEmail() == null || !EMAIL_PATTERN.matcher(request.getEmail()).matches()) {
-            throw new ValidationException(
-                "A valid email address is required. Please provide an email address in the correct format."
-            );
+            throw new ValidationException("Invalid email format");
         }
     }
 }
