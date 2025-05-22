@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Error</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        .error-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .error-title {
+            color: #d9534f;
+            margin-bottom: 20px;
+        }
+        .error-details {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1 class="error-title">Oops! Something went wrong</h1>
+        <div class="error-details">
+            <p th:text="${errorMessage}">An error occurred</p>
+            <p><strong>Requested URL:</strong> <span th:text="${requestedUrl}">URL</span></p>
+            <p><strong>Time:</strong> <span th:text="${timestamp}">timestamp</span></p>
+        </div>
+        <p>Please try again later or contact support if the problem persists.</p>
+    </div>
+</body>
+</html> 
